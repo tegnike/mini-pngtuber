@@ -98,6 +98,17 @@
   }
 
   async function fetchImages() {
+    // Electron環境ではIPC通信を使用
+    if (window.electronAPI?.isElectron) {
+      try {
+        const result = await window.electronAPI.getImages();
+        return result.images || [];
+      } catch (e) {
+        console.error('IPC画像取得エラー:', e);
+        return [];
+      }
+    }
+    // ブラウザ環境では従来のHTTP fetchを使用
     try {
       const res = await fetch('/images', { cache: 'no-cache' });
       if (!res.ok) throw new Error('failed');
@@ -127,17 +138,19 @@
   }
 
   function populateImageSelects(images) {
-    const opts = images.map((name) => `<option value="/${encodeURIComponent(name)}">${name}</option>`).join('');
+    // Electron環境では相対パス、ブラウザ環境では絶対パス
+    const prefix = window.electronAPI?.isElectron ? './' : '/';
+    const opts = images.map((name) => `<option value="${prefix}${encodeURIComponent(name)}">${name}</option>`).join('');
     els.imageMouthClosedEyesOpen.innerHTML = opts;
     els.imageMouthClosedEyesClosed.innerHTML = opts;
     els.imageMouthOpenEyesOpen.innerHTML = opts;
     els.imageMouthOpenEyesClosed.innerHTML = opts;
 
     const defaults = guessDefaults(images);
-    if (defaults.mouthClosedEyesOpen) els.imageMouthClosedEyesOpen.value = `/${defaults.mouthClosedEyesOpen}`;
-    if (defaults.mouthClosedEyesClosed) els.imageMouthClosedEyesClosed.value = `/${defaults.mouthClosedEyesClosed}`;
-    if (defaults.mouthOpenEyesOpen) els.imageMouthOpenEyesOpen.value = `/${defaults.mouthOpenEyesOpen}`;
-    if (defaults.mouthOpenEyesClosed) els.imageMouthOpenEyesClosed.value = `/${defaults.mouthOpenEyesClosed}`;
+    if (defaults.mouthClosedEyesOpen) els.imageMouthClosedEyesOpen.value = `${prefix}${defaults.mouthClosedEyesOpen}`;
+    if (defaults.mouthClosedEyesClosed) els.imageMouthClosedEyesClosed.value = `${prefix}${defaults.mouthClosedEyesClosed}`;
+    if (defaults.mouthOpenEyesOpen) els.imageMouthOpenEyesOpen.value = `${prefix}${defaults.mouthOpenEyesOpen}`;
+    if (defaults.mouthOpenEyesClosed) els.imageMouthOpenEyesClosed.value = `${prefix}${defaults.mouthOpenEyesClosed}`;
     updateImages();
   }
 
