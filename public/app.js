@@ -3,7 +3,11 @@
   const qsa = (s) => Array.from(document.querySelectorAll(s));
 
   const els = {
-    status: qs('#status'),
+    settingsToggle: qs('#settingsToggle'),
+    controlsPanel: qs('.controls'),
+    micToggle: qs('#micToggle'),
+    micIconOn: qs('#micIconOn'),
+    micIconOff: qs('#micIconOff'),
     toggleBtn: qs('#toggleMicBtn'),
     refreshBtn: qs('#refreshDevicesBtn'),
     deviceSelect: qs('#deviceSelect'),
@@ -246,7 +250,7 @@
 
       started = true;
       els.toggleBtn.textContent = 'マイク停止';
-      els.status.textContent = '動作中';
+      updateMicButton(true);
       scheduleNextBlink();
       loop();
     } catch (err) {
@@ -284,7 +288,7 @@
     els.imgMouthClosedEyesOpen.style.opacity = '1';
     currentState = { mouthOpen: false, eyesOpen: true };
     els.toggleBtn.textContent = 'マイク開始';
-    els.status.textContent = '待機中';
+    updateMicButton(false);
     updateMeter(0);
   }
 
@@ -564,7 +568,24 @@
     saveSettings();
   }
 
+  // マイクボタンの状態更新
+  function updateMicButton(isOn) {
+    els.micToggle.classList.toggle('active', isOn);
+    els.micIconOn.style.display = isOn ? 'block' : 'none';
+    els.micIconOff.style.display = isOn ? 'none' : 'block';
+  }
+
+  // 設定パネルのトグル
+  function toggleSettings() {
+    const isHidden = els.controlsPanel.classList.toggle('hidden');
+    els.settingsToggle.classList.toggle('active', !isHidden);
+  }
+
   // Event bindings
+  els.settingsToggle.addEventListener('click', toggleSettings);
+  els.micToggle.addEventListener('click', () => {
+    if (started) stopMic(); else startMic();
+  });
   els.toggleBtn.addEventListener('click', () => {
     if (started) stopMic(); else startMic();
   });
