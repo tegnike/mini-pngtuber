@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PNGTuber Simple</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>PNGTuber Simple</h1>
+      <div class="status" id="status">待機中</div>
+    </header>
+
+    <main class="layout">
+      <section class="controls">
+        <div class="group">
+          <button id="toggleMicBtn" class="primary">マイク開始</button>
+          <button id="refreshDevicesBtn" title="入力デバイス更新">デバイス更新</button>
+        </div>
+
+        <div class="group">
+          <label>
+            入力デバイス
+            <select id="deviceSelect"></select>
+          </label>
+        </div>
+
+        <div class="group">
+          <label for="threshold">感度（しきい値）: <span id="thresholdVal">0.35</span></label>
+          <input type="range" id="threshold" min="0" max="100" value="35" />
+        </div>
+
+        <div class="group">
+          <label for="toggleInterval">切り替え間隔: <span id="toggleIntervalVal">0.1</span>秒</label>
+          <input type="range" id="toggleInterval" min="1" max="10" value="1" />
+        </div>
+
+        <div class="group">
+          <label for="smoothing">スムージング（反応の滑らかさ）: <span id="smoothingVal">0.70</span></label>
+          <input type="range" id="smoothing" min="0" max="95" value="70" />
+        </div>
+
+        <div class="group">
+          <label for="gain">入力ゲイン（感度ブースト）: <span id="gainVal">3.0x</span></label>
+          <input type="range" id="gain" min="50" max="600" value="300" />
+        </div>
+
+        <div class="group">
+          <label for="scale">表示サイズ: <span id="scaleVal">100%</span></label>
+          <input type="range" id="scale" min="25" max="200" value="100" />
+        </div>
+
+        <div class="group">
+          <label for="bgColor">背景色: <span id="bgColorVal">#0b0f14</span></label>
+          <input type="color" id="bgColor" value="#0b0f14" />
+        </div>
+
+        <div class="group">
+          <label>口閉じ×目開き
+            <select id="imageMouthClosedEyesOpen"></select>
+          </label>
+          <label>口閉じ×目閉じ
+            <select id="imageMouthClosedEyesClosed"></select>
+          </label>
+          <label>口開き×目開き
+            <select id="imageMouthOpenEyesOpen"></select>
+          </label>
+          <label>口開き×目閉じ
+            <select id="imageMouthOpenEyesClosed"></select>
+          </label>
+          <div class="note">public フォルダ内の画像から選択</div>
+        </div>
+
+        <div class="group">
+          <label>
+            <input type="checkbox" id="blinkEnabled" checked /> 瞬き機能
+          </label>
+        </div>
+
+        <div class="group">
+          <label for="blinkIntervalMin">瞬き間隔（最小）: <span id="blinkIntervalMinVal">2.0</span>秒</label>
+          <input type="range" id="blinkIntervalMin" min="10" max="50" value="20" />
+        </div>
+
+        <div class="group">
+          <label for="blinkIntervalMax">瞬き間隔（最大）: <span id="blinkIntervalMaxVal">6.0</span>秒</label>
+          <input type="range" id="blinkIntervalMax" min="30" max="100" value="60" />
+        </div>
+
+        <div class="group">
+          <label for="blinkDuration">瞬き時間: <span id="blinkDurationVal">150</span>ms</label>
+          <input type="range" id="blinkDuration" min="50" max="300" value="150" />
+        </div>
+
+        <div class="group">
+          <label>
+            <input type="checkbox" id="showMeter" checked /> 音量メーター表示
+          </label>
+        </div>
+
+        <div class="group help">
+          ブラウザにマイク許可が必要です（localhost は許可対象）。
+        </div>
+      </section>
+
+      <section class="stage">
+        <div id="avatar" class="avatar">
+          <img id="imgMouthClosedEyesOpen" alt="口閉じ目開き" />
+          <img id="imgMouthClosedEyesClosed" alt="口閉じ目閉じ" />
+          <img id="imgMouthOpenEyesOpen" alt="口開き目開き" />
+          <img id="imgMouthOpenEyesClosed" alt="口開き目閉じ" />
+        </div>
+        <div class="meter" id="meter" aria-hidden="true">
+          <div class="bar" id="meterBar"></div>
+          <div class="threshold" id="meterOpen"></div>
+          <div class="threshold low" id="meterClose"></div>
+        </div>
+        <div class="error" id="error"></div>
+      </section>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+  </html>

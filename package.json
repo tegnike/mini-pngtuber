@@ -1,0 +1,11 @@
+{
+  "name": "pngtuber-simple",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Simple mic-driven PNGTuber toggling mouth-open/closed images",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
+
