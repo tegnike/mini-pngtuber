@@ -21,6 +21,8 @@
     bgColorVal: qs('#bgColorVal'),
     gain: qs('#gain'),
     gainVal: qs('#gainVal'),
+    speakDelay: qs('#speakDelay'),
+    speakDelayVal: qs('#speakDelayVal'),
     scale: qs('#scale'),
     scaleVal: qs('#scaleVal'),
     // 4画像選択セレクト
@@ -79,6 +81,7 @@
     gain: 3.0, // input gain multiplier
     bgColor: '#0b0f14',
     scalePct: 100,
+    speakDelay: 0.2, // 発話検出遅延（秒）
     // 瞬き設定
     blinkEnabled: true,
     blinkIntervalMin: 2.0,  // 秒
@@ -89,6 +92,7 @@
   // For mouth toggle animation
   let isSpeaking = false;
   let lastToggleTime = 0;
+  let thresholdExceededTime = null; // 閾値超過開始時刻
 
   function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
 
@@ -179,14 +183,17 @@
     const interval = parseInt(els.toggleInterval.value, 10) / 10; // 0.1..1.0 seconds
     const sm = parseInt(els.smoothing.value, 10) / 100; // 0..0.95 (we'll clamp)
     const g = parseInt(els.gain.value, 10) / 100; // 0.5 .. 6.0
+    const delay = parseInt(els.speakDelay.value, 10) / 100; // 0..0.5 seconds
     state.threshold = clamp(thr, 0, 1);
     state.toggleInterval = clamp(interval, 0.1, 1.0);
     state.smoothing = clamp(sm, 0, 0.95);
     state.gain = clamp(g, 0.5, 6.0);
+    state.speakDelay = clamp(delay, 0, 0.5);
     els.thresholdVal.textContent = state.threshold.toFixed(2);
     els.toggleIntervalVal.textContent = state.toggleInterval.toFixed(1);
     els.smoothingVal.textContent = state.smoothing.toFixed(2);
     els.gainVal.textContent = state.gain.toFixed(1) + 'x';
+    els.speakDelayVal.textContent = state.speakDelay.toFixed(2);
 
     // Update meter threshold (single line now)
     els.meterOpen.style.left = `${state.threshold * 100}%`;
@@ -311,19 +318,28 @@
 
     const now = performance.now();
     const intervalMs = state.toggleInterval * 1000;
+    const delayMs = state.speakDelay * 1000;
 
     if (smoothVolume >= state.threshold) {
-      // Speaking - toggle mouth at interval
-      if (!isSpeaking) {
-        isSpeaking = true;
-        mouthOpen = true;
-        lastToggleTime = now;
-      } else if (now - lastToggleTime >= intervalMs) {
-        mouthOpen = !mouthOpen;
-        lastToggleTime = now;
+      // 閾値超過開始時刻を記録
+      if (thresholdExceededTime === null) {
+        thresholdExceededTime = now;
+      }
+
+      // 遅延時間経過後に発話状態にする
+      if (now - thresholdExceededTime >= delayMs) {
+        if (!isSpeaking) {
+          isSpeaking = true;
+          mouthOpen = true;
+          lastToggleTime = now;
+        } else if (now - lastToggleTime >= intervalMs) {
+          mouthOpen = !mouthOpen;
+          lastToggleTime = now;
+        }
       }
     } else {
       // Not speaking - close mouth
+      thresholdExceededTime = null;
       isSpeaking = false;
       mouthOpen = false;
     }
@@ -464,6 +480,7 @@
       if (typeof s.toggleInterval === 'number') els.toggleInterval.value = Math.round(clamp(s.toggleInterval, 0.1, 1.0) * 10);
       if (typeof s.smoothing === 'number') els.smoothing.value = Math.round(clamp(s.smoothing, 0, 0.95) * 100);
       if (typeof s.gain === 'number' && els.gain) els.gain.value = Math.round(clamp(s.gain, 0.5, 6.0) * 100);
+      if (typeof s.speakDelay === 'number' && els.speakDelay) els.speakDelay.value = Math.round(clamp(s.speakDelay, 0, 0.5) * 100);
       if (typeof s.scalePct === 'number') els.scale.value = clamp(Math.round(s.scalePct), 25, 200);
       if (typeof s.showMeter === 'boolean') els.showMeter.checked = s.showMeter;
       if (typeof s.bgColor === 'string' && els.bgColor) {
@@ -488,6 +505,7 @@
         toggleInterval: state.toggleInterval,
         smoothing: state.smoothing,
         gain: state.gain,
+        speakDelay: state.speakDelay,
         scalePct: state.scalePct,
         showMeter: !!els.showMeter.checked,
         // 4画像の選択状態
@@ -580,6 +598,7 @@
   els.smoothing.addEventListener('input', updateSlidersUI);
   els.scale.addEventListener('input', updateScale);
   els.gain.addEventListener('input', updateSlidersUI);
+  els.speakDelay.addEventListener('input', updateSlidersUI);
   // 4画像選択イベント
   els.imageMouthClosedEyesOpen.addEventListener('change', updateImages);
   els.imageMouthClosedEyesClosed.addEventListener('change', updateImages);
