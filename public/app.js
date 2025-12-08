@@ -365,33 +365,17 @@
     const incoming = getTargetImage(targetMouthOpen, targetEyesOpen);
     const allImages = getAllImages();
 
-    // 新しい画像をフェードイン、他を非表示に
+    // 新しい画像を即座に表示、古い画像は下のレイヤーに配置（ちらつき防止）
     allImages.forEach(img => {
       if (img === incoming) {
-        img.style.zIndex = '2';
         img.style.transition = 'none';
-        img.style.opacity = '0';
-        void img.offsetWidth; // reflow
-        img.style.transition = 'opacity 90ms linear';
         img.style.opacity = '1';
+        img.style.zIndex = '2';
       } else {
         img.style.zIndex = '1';
+        img.style.opacity = '0';
       }
     });
-
-    const token = ++fadeToken;
-    const finish = () => {
-      if (token !== fadeToken) return;
-      allImages.forEach(img => {
-        if (img !== incoming) {
-          img.style.transition = 'none';
-          img.style.opacity = '0';
-        }
-      });
-      incoming.removeEventListener('transitionend', finish);
-    };
-    incoming.addEventListener('transitionend', finish);
-    setTimeout(finish, 140);
 
     currentState = { mouthOpen: targetMouthOpen, eyesOpen: targetEyesOpen };
   }
