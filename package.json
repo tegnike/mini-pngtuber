@@ -1,5 +1,5 @@
 {
-  "name": "pngtuber-simple",
+  "name": "mini-pngtuber",
   "version": "0.1.0",
   "private": true,
   "description": "Simple mic-driven PNGTuber toggling mouth-open/closed images",

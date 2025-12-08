@@ -1,6 +1,6 @@
 module.exports = {
-  appId: 'com.pngtuber.simple',
-  productName: 'PNGTuber Simple',
+  appId: 'com.mini-pngtuber.app',
+  productName: 'mini PNGTuber',
 
   directories: {
     output: 'dist',

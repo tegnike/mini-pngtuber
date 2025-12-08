@@ -1,6 +1,6 @@
-# PNGTuber Simple
+# mini PNGTuber
 
-![PNGTuber Simple](public/readme_image.png)
+![mini PNGTuber](public/readme_image.png)
 
 マイク入力を使って、キャラクター画像の口と目を自動で切り替える PNGTuber アプリです。瞬き機能も搭載しており、配信やビデオ通話でアバターとして使用できます。
 
